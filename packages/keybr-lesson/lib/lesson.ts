@@ -25,6 +25,7 @@ export abstract class Lesson {
     this.keyboard = keyboard;
     this.codePoints = keyboard.getCodePoints();
     this.model = PhoneticModel.restrict(model, this.codePoints);
+    console.log("lessson");
   }
 
   filter(results: readonly Result[]): readonly Result[] {

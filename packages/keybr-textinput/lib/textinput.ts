@@ -214,6 +214,42 @@ export class TextInput {
     return { text, lines: [{ text, chars }] };
   }
 
+  getMistakes(): string[] {
+    return this.getSteps().reduce<{
+      word: string;
+      typo: boolean;
+      i: number;
+      wrongWords: string[];
+    }>(
+      function (carry, step, b, c) {
+        let chr = String.fromCharCode(step.codePoint);
+        if (step.codePoint === 32) {
+          if (carry.typo) {
+            carry.wrongWords.push(carry.word);
+          }
+
+          return {
+            word: "",
+            i: carry.i + 1,
+            typo: false,
+            wrongWords: carry.wrongWords,
+          };
+        }
+
+        carry.word = carry.word + chr;
+        carry.i++;
+        carry.typo = carry.typo || step.typo;
+
+        if (carry.i === c.length && carry.typo) {
+          carry.wrongWords.push(carry.word);
+        }
+
+        return carry;
+      },
+      { word: "", i: 0, typo: false, wrongWords: [] },
+    ).wrongWords;
+  }
+
   getSuffix(): readonly CodePoint[] {
     return this.codePoints.slice(this.#steps.length);
   }

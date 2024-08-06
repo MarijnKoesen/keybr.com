@@ -1,4 +1,6 @@
 import { type KeyId, useKeyboard } from "@keybr/keyboard";
+import { lessonProps,MistakesLesson } from "@keybr/lesson";
+import { FakePhoneticModel } from "@keybr/phonetic-model";
 import { type Result } from "@keybr/result";
 import { type Settings } from "@keybr/settings";
 import { loadSounds, playSound } from "@keybr/sound";
@@ -22,7 +24,7 @@ import {
   type LastLesson,
   LessonState,
   makeLastLesson,
-  type Progress,
+  Progress,
 } from "./state/index.ts";
 
 export const Controller = memo(function Controller({
@@ -75,17 +77,44 @@ function useLessonState(
   const [, setLines] = useState<LineList>({ text: "", lines: [] }); // Forces UI update.
   const [, setDepressedKeys] = useState<readonly KeyId[]>([]); // Forces UI update.
   const lastLessonRef = useRef<LastLesson | null>(null);
+  const [mistakes, setMistakes] = useState<string[]>([]);
 
   const onResultRef = useRef(onResult);
   onResultRef.current = onResult;
 
   return useMemo(() => {
+    function createNewLessonState() {
+      if (mistakes.length !== 0) {
+        const retryLesson = new MistakesLesson(
+          progress.settings,
+          keyboard,
+          new FakePhoneticModel(["uno", "due", "tre"]),
+          mistakes,
+          3, // make a setting
+        );
+        const fixMistakesProgress = new Progress(
+          progress.settings,
+          retryLesson,
+        );
+
+        return new LessonState(fixMistakesProgress, (result, textInput) => {
+          setKey(key + 1);
+          setMistakes(textInput.getMistakes());
+          lastLessonRef.current = makeLastLesson(result, textInput.getSteps());
+          onResultRef.current(result);
+        });
+      }
+
+      return new LessonState(progress, (result, textInput) => {
+        setKey(key + 1);
+        setMistakes(textInput.getMistakes());
+        lastLessonRef.current = makeLastLesson(result, textInput.getSteps());
+        onResultRef.current(result);
+      });
+    }
+
     // New lesson.
-    const state = new LessonState(progress, (result, textInput) => {
-      setKey(key + 1);
-      lastLessonRef.current = makeLastLesson(result, textInput.getSteps());
-      onResultRef.current(result);
-    });
+    const state = createNewLessonState();
     state.lastLesson = lastLessonRef.current;
     setLines(state.lines);
     setDepressedKeys(state.depressedKeys);

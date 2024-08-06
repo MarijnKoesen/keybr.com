@@ -60,6 +60,7 @@ export class LessonState {
     this.streakList = progress.streakList.copy();
     this.dailyGoal = progress.dailyGoal.copy();
     this.lessonKeys = this.lesson.update(this.keyStatsMap);
+    console.log("new lesson state");
     this.#reset(this.lesson.generate(this.lessonKeys));
   }
 
@@ -68,6 +69,7 @@ export class LessonState {
   }
 
   skipLesson() {
+    console.log("skip");
     this.#reset(this.lesson.generate(this.lessonKeys));
   }
 
@@ -81,6 +83,10 @@ export class LessonState {
     return feedback;
   }
 
+  // reset2(fragment: string) {
+  //   this.#reset(fragment)
+  // }
+  //
   #reset(fragment: string) {
     this.textInput = new TextInput(fragment, this.textInputSettings);
     this.lines = this.textInput.getLines();

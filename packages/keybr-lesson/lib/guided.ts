@@ -3,6 +3,7 @@ import { type Keyboard } from "@keybr/keyboard";
 import { Filter, Letter, type PhoneticModel } from "@keybr/phonetic-model";
 import { type KeyStatsMap } from "@keybr/result";
 import { type Settings } from "@keybr/settings";
+import { util } from "zod";
 import { Dictionary, filterWordList } from "./dictionary.ts";
 import { LessonKey, LessonKeys } from "./key.ts";
 import { Lesson } from "./lesson.ts";
@@ -16,6 +17,7 @@ import {
   uniqueWords,
   type WordGenerator,
 } from "./text/words.ts";
+import joinValues = util.joinValues;
 
 export class GuidedLesson extends Lesson {
   readonly dictionary: Dictionary;
@@ -121,6 +123,7 @@ export class GuidedLesson extends Lesson {
       },
       this.rng,
     );
+    // console.log('generate normal lesson');
     return generateFragment(this.settings, words, {
       doubleWords: this.settings.get(lessonProps.doubleWords),
     });

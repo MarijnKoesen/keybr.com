@@ -66,10 +66,12 @@ function useLoader(model: PhoneticModel): Lesson | null {
     let didCancel = false;
 
     const load = async (): Promise<void> => {
+      // console.log("load lesson: " + settings.get(lessonProps.type));
       switch (settings.get(lessonProps.type)) {
         case LessonType.GUIDED: {
           const { language } = settings.get(keyboardProps.layout);
-          const wordList = await loadWordList(language);
+          // words are loaded here
+          let wordList = await loadWordList(language);
           if (!didCancel) {
             setResult(new GuidedLesson(settings, keyboard, model, wordList));
           }
